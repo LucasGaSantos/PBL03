@@ -70,7 +70,7 @@ def busca_parametro(): # BUSCA DO HISTÓRICO DE TRANSFERÊNCIA A PARTIR DE UM PA
     def parametro(): # COLETANDO PARAMETRO
         while True:
             try:
-                valor_minimo = float("Insira o valor mínimo como parâmetro: ")
+                valor_minimo = float(input("Insira o valor mínimo como parâmetro: "))
                 if valor_minimo < 0:
                     print("Valor inválido. Insira valores negativos.")
                 else:
@@ -81,8 +81,9 @@ def busca_parametro(): # BUSCA DO HISTÓRICO DE TRANSFERÊNCIA A PARTIR DE UM PA
     valor = parametro()
     with open('Transacoes.csv', 'r') as arquivoTransacoes:
         conteudo = csv.reader(arquivoTransacoes)
+        next(conteudo)
         for linhas in conteudo:
-            if linhas[2] > valor:
+            if float(linhas[2]) > valor:
                 print(f"ID {linhas[0]} transferiu para ID {linhas[1]} a quantia de R${linhas[2]}")
 
 def transacao(idsUsados): # REALIZANDO TRANSACOES
