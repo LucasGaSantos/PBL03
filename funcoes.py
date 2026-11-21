@@ -2,7 +2,7 @@
 import csv
 from classes import *
 
-def registro(lista):
+def registro(lista): # REGISTRO DOS USUÁRIOS
     with open('Pessoas.csv', 'a',newline='', encoding="utf-8") as arquivoPessoas:
         pessoa.id = len(lista) + 1 # GERANDO ID CONFORME A QUANTIDADE DE PESSOAS PRESENTES NO ARQUIVO
         lista.append(str(pessoa.id)) 
@@ -46,7 +46,7 @@ def menu_busca(): # MENU DE BUSCA + COLETAR OPÇÃO DO USUÁRIO
     except ValueError:
         print("Opção inválida. Insira apenas números")
 
-def busca_completa():
+def busca_completa(): # BUSCA COMPLETA DO HISTÓRICO DE TRANSFERÊNCIA
     quantidade_linhas = 0
     with open('Transacoes.csv', 'r') as arquivoTransacoes: # VERIFICANDO SE O ARQUIVO ESTÁ VAZIO
         conteudo = csv.reader(arquivoTransacoes)
@@ -89,9 +89,9 @@ def busca_id(lista): # BUSCANDO HISTÓRICO E DADOS POR ID
         idPesquisa = coletar_id(lista)
         if idPesquisa == False: # CASO O ID PESQUISADO NÃO CONSTE, O CÓDIGO NÃO RODARÁ
             None
-        else:
+        else: # CASO O ID PESQUISADO CONSTE, O CÓDIGO RODARÁ
             transacoes = qtdEnvio = envio = qtdRecebido = recebido = paraSi = envioParaSi = 0
-            with open('Transacoes.csv', 'r') as arquivoTransacoes:
+            with open('Transacoes.csv', 'r') as arquivoTransacoes: # ABRE O ARQUIVO TRANSFERENCIA PARA COLETAR DADOS DE ENVIO
                 conteudo = csv.reader(arquivoTransacoes)
                 next(conteudo)
                 print("Valores enviados:")
@@ -101,7 +101,7 @@ def busca_id(lista): # BUSCANDO HISTÓRICO E DADOS POR ID
                         transacoes+=1
                         qtdEnvio+=1
                         print(f"O ID {idPesquisa} transferiu para {linhas[1]} o valor de R${linhas[2]}")
-            with open('Transacoes.csv', 'r') as arquivoTransacoes:                   
+            with open('Transacoes.csv', 'r') as arquivoTransacoes: # ABRE O ARQUIVO TRANSFERENCIA PARA COLETAR DADOS DE RECEBIMENTO                    
                 conteudo = csv.reader(arquivoTransacoes)
                 next(conteudo)
                 print("Valores recebidos:")
@@ -115,12 +115,13 @@ def busca_id(lista): # BUSCANDO HISTÓRICO E DADOS POR ID
                         else:
                             paraSi += 1
                             envioParaSi += float(linhas[2])
-            with open('Pessoas.csv', 'r') as arquivoPessoas:
+            with open('Pessoas.csv', 'r') as arquivoPessoas: # ABRE O ARQUIVO DE PESSOAS PARA COLETAR O NOME 
                 conteudo = csv.reader(arquivoPessoas)
                 next(conteudo)
                 for linhas in conteudo:
                     if linhas[0] == str(idPesquisa):
                         nome_ID = linhas[1]
+            # IMPRESSÃO DAS ESTATÍSTICAS COLETADAS
             print(f"Dados estatísticos do ID: {idPesquisa}\n"\
                     f"Nome cadastrado no ID {idPesquisa}: {nome_ID}\n"\
                     f"Participação em transferências: {transacoes}\n"\
@@ -178,14 +179,14 @@ def busca_parametro(): # BUSCA DO HISTÓRICO DE TRANSFERÊNCIA A PARTIR DE UM PA
                     maiores.append(maior)
                     if maiores.count(maior) > 1:
                         maiores.remove(maior)
-                
+        # TRATAMENTO DA IMPRESSÃO DOS DADOS ESTATÍSTICOS DE QUEM MAIS PARTICIPOU DE TRANSFERÊNCIAS       
         if len(maiores) == 1:
             print(f"O ID que mais participou de transações foi o ID {maior}")
         elif len(maiores) > 1:
             print("Os ID's que mais participaram de transações:")
             for i in maiores:
                 print(f"ID: {i}")
-
+        # IMPRESSÃO DOS DADOS ESTATÍSTICOS DE QUEM ESTÁ DENTRO DO PARÂMETRO ESTABELECIDO
         for i in range(0, len(idsDentroLimite) -1):
             print(f"O ID {idsDentroLimite[i]} participou de {idsListadosOrdenados.count(idsDentroLimite[i])}")
                 
@@ -194,38 +195,41 @@ def busca_parametro(): # BUSCA DO HISTÓRICO DE TRANSFERÊNCIA A PARTIR DE UM PA
         print("\n\n\n")
 
 def transacao(idsUsados): # REALIZANDO TRANSACOES
-    r = 0
-    while r == 0:
-        try:
+    chave_coletaID = 0
+    while chave_coletaID == 0:
+        try: # COLETAR ID DO EMISSOR E DO RECEPTOR
             emissor = int(input("Emissor: "))
             if str(emissor) in idsUsados:
                 receptor = int(input("Receptor: "))
                 if str(receptor) in idsUsados:
-                    r+= 1
+                    chave_coletaID += 1
+                    dadosColetados = True
                 else:
                     print("Receptor não está cadastrado.")
+                    chave_coletaID += 1
             else:
                     print("Emissor não está cadastrado.")
+                    chave_coletaID += 1
         except ValueError:
             print("Erro no ID. ID's são números.")
-
-    r = 0
-    while r == 0:
-        try: 
-            valor = float(input("Informe o valor da transferência: "))
-            if valor == 0:
-                print("Valor inválido. Zero não é transferível.")
-            elif valor < 0:
-                print("Não é possível transferir valor negativo.")
-            else:
-                r+=1
-                print("Transferência realizada.")
-                print("\n\n\n")
-        except ValueError:
-            print("Erro na transferencia. Valor inserido não é numerico.")
-    with open('Transacoes.csv', 'a', newline='') as arquivoTransacoes:
-        escrever = csv.writer(arquivoTransacoes)
-        escrever.writerow([f'{emissor}', f'{receptor}', f'{valor}'])
+    if dadosColetados == True:
+        chave_Transacao = 0
+        while chave_Transacao == 0:
+            try: 
+                valor = float(input("Informe o valor da transferência: "))
+                if valor == 0:
+                    print("Valor inválido. Zero não é transferível.")
+                elif valor < 0:
+                    print("Não é possível transferir valor negativo.")
+                else:
+                    chave_Transacao=1
+                    print("Transferência realizada.")
+                    print("\n\n\n")
+            except ValueError:
+                print("Erro na transferencia. Valor inserido não é numerico.")
+        with open('Transacoes.csv', 'a', newline='') as arquivoTransacoes:
+            escrever = csv.writer(arquivoTransacoes)
+            escrever.writerow([f'{emissor}', f'{receptor}', f'{valor}'])
 
 def ordenacao(lista):
     lista2 = []
