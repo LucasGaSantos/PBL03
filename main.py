@@ -1,0 +1,170 @@
+# Autor: LUCAS GABRIEL OLIVEIRA DOS SANTOS
+# Componente Curricular: MI - Algoritmos
+# Concluído em: 
+# Declaro que este código foi elaborado por mim de forma individual e não contém 
+# nenhum trecho de código de colega ou de outro autor, tais como provindos de livros e 
+# apostilas, e páginas ou documentos eletrônicos da internet. Qualquer trecho de código 
+# de outra autoria que não a minha está destacado com uma citação do autor e a fonte do
+# código, e estou ciente que estes trechos não serão considerados para fins de avaliação.
+
+# IMPORTAÇÃO DAS BIBLIOTECAS
+import csv 
+from classes import pessoa
+from funcoes import *
+
+# DECLARAÇÃO DA LISTA PARA COLETAR OS DADOS DO ARQUIVO PARA QUE NÃO O ABRA A TODO INSTANTE
+idUsados = []
+pessoa = pessoa()
+# TENTANDO COLETAR OS DADOS DO ARQUIVO. SE NÃO HOUVER, CRIA UM ARQUIVO DO ZERO
+try:
+    with open('Pessoas.csv', 'r', newline='', encoding="utf-8") as arquivoPessoas: # COLETANDO OS DADOS DO ARQUIVO
+        conteudo = csv.reader(arquivoPessoas)
+        next(conteudo) # FUNÇÃO PARA PULAR UMA LINHA DO ARQUIVO 
+        for linhas in conteudo:
+            idUsados.append(linhas[0])
+except FileNotFoundError: # CAPTANDO ERRO POR NÃO EXISTIR ARQUIVO (PRIMEIRA VEZ QUE O CÓDIGO RODA)
+    with open('Pessoas.csv', 'w',newline='', encoding="utf-8") as arquivoPessoas:
+        escrever = csv.writer(arquivoPessoas)
+        escrever.writerow(['ID', 'NOME', 'QUANTIDADE DE TRANSFERENCIAS', 'VOLUME FINANCEIRO', 'QUANTIA ENVIADA', 'QUANTIA RECEBIDA', 'MOVIMENTAÇÃO PARA SI']) # LINHA DE INFORMAÇÃO PARA CADA UMA DAS COLUNAS
+try:
+    with open('Transacoes.csv', 'r', newline='', encoding="utf-8") as arquivoTransacoes:
+        arquivoTransacoes.close()
+except FileNotFoundError:
+    with open('Transacoes.csv', 'a', newline='', encoding="utf-8") as arquivoTransacoes:
+        escrever = csv.writer(arquivoTransacoes)
+        escrever.writerow(['QUEM TRANSFERIU', 'QUEM RECEBEU', 'VALOR DA TRANSFERENCIA'])
+# INICIANDO O PROGRAMA
+chave_Programa = 1
+while chave_Programa == 1:
+    opcao_menu = menu() # COLETANDO A SELEÇÃO DO MENU
+    if opcao_menu == 0:
+        chave_Programa -= 1
+        print("Programa Encerrado.")
+    elif opcao_menu == 1: # CASO QUEIRA REGISTRAR UMA PESSOA
+        with open('Pessoas.csv', 'a',newline='', encoding="utf-8") as arquivoPessoas:
+            pessoa.id = len(idUsados) + 1 # GERANDO ID CONFORME A QUANTIDADE DE PESSOAS PRESENTES NO ARQUIVO
+            idUsados.append(pessoa.id) 
+            pessoa.nome = input("Nome: ") # COLETANDO O NOME
+            escritor = csv.writer(arquivoPessoas)
+            escritor.writerow([f'{pessoa.id}', f'{pessoa.nome}', f'{pessoa.qtdTransferencias}', f'{pessoa.volumeFinanceiro}', f'{pessoa.quantiaEnviada}', f'{pessoa.quantiaRecebida}', f'{pessoa.movimentacoesParaSi}']) # INSERINDO NO ARQUIVO
+    elif opcao_menu == 2: # CASO QUEIRA CONSULTAR O HISTÓRICO
+        resultadoBusca = menu_busca() # COLETANDO A SELEÇÃO DO MENU DE BUSCA
+        if resultadoBusca == 1: # CASO QUEIRA VER O HISTÓRICO COMPLETO
+            try:
+                with open('Transacoes.csv', 'r') as arquivoTransacoes:
+                    print(arquivoTransacoes.read())
+            except FileNotFoundError: # TRATANDO CASO NÃO ENCONTRE REGISTRO DE TRANSAÇÕES
+                print("Não há transações registradas.")
+        elif resultadoBusca == 2: # CASO QUEIRA VER O HISTÓRICO DE UM USUÁRIO EM ESPECÍFICO
+            chave_ConsultaId = 1
+            while chave_ConsultaId == 1:
+                try:
+                    id = int(input("Informe o ID a ser consultado: "))
+                    if str(id) in idUsados:
+                        chave_ConsultaId +=1
+                        with open('Transacoes.csv', 'r') as arquivoTransacoes:
+                            conteudo = csv.reader(arquivoTransacoes)
+                            next(conteudo)
+                            existencia = False
+                            for linhas in conteudo:
+                                if linhas[0] == str(id):
+                                    existencia = True
+                            if existencia == True:
+                                print("Valores enviados:")
+                                for linhas in conteudo:
+                                    if linhas[0] == str(id):
+                                        print(f"O ID {id} transferiu para {linhas[1]} o valor de R${linhas[2]}")
+                            existencia = False
+                            for linhas in conteudo:
+                                if linhas[1] == str(id):
+                                    existencia == True
+                            if existencia == True:
+                                print("Valores recebidos:")
+                                for linhas in conteudo:
+                                    if linhas[1] == str(id):
+                                        print(f"O ID {id} recebeu de {linhas[0]} o valor de R${linhas[2]}") 
+                        with open('Pessoas.csv', 'r') as arquivoPessoas:
+                            conteudo = csv.reader(arquivoPessoas)
+                            next(conteudo)
+                            for linhas in conteudo:
+                                if linhas[0] == str(id):
+                                    print(f"Dados estatísticos do ID: {id}\n"\
+                                          f"Nome cadastrado no ID {id}: {linhas[1]}\n"\
+                                          f"Participação em transferências: {linhas[2]}\n"\
+                                          f"Volume financeiro movimentado: {linhas[3]}\n"\
+                                          f"Transferências enviadas: {linhas[4]}\n"\
+                                          f"Transferências recebidas: {linhas[5]}\n"\
+                                          f"Transferências realizadas para si mesmo: {linhas[6]}")
+                             
+                    else:
+                        print("ID informado não consta no sistema.")
+                        chave_ConsultaId +=1
+                except ValueError:
+                    print("Erro de ID. ID são numéricos.")
+            try:
+                with open('Transacoes.csv', 'r') as arquivoTransacoes: 
+                    for i in arquivoTransacoes.readlines():
+                        if i in arquivoTransacoes.readlines():
+                            print(i)
+            except FileNotFoundError:
+                with open('Transacoes.csv', 'w') as arquivoTransacoes:
+                    arquivoTransacoes.close()
+                print("Não há transações registradas.")
+        else: # CASO QUEIRA VER O HISTÓRICO GERAL COM PARÂMETRO
+            None
+    elif opcao_menu == 3: # CASO QUEIRA TRANSFERIR
+        enviador, receptor, transferencia = transacao(idUsados)
+        if enviador != receptor: # TRATAMENTO PARA SABER SE A TRANSFERENCIA FOI PARA QUEM ENVIOU
+            with open("Pessoas.csv", 'r+', newline='', encoding="utf-8") as arquivoPessoas:
+                conteudo = csv.reader(arquivoPessoas)
+                escrever = csv.writer(arquivoPessoas)
+                next(conteudo)
+                for linhas in conteudo:
+                    if linhas[0] == str(enviador):
+                        asdasd
+                        qtdTransferencias = int(linhas[2])
+                        qtdTransferencias += 1
+                        linhas[2] = f'{qtdTransferencias}' 
+                        volumeFinanceiro = float(linhas[3])
+                        volumeFinanceiro += transferencia
+                        linhas[3] = f'{volumeFinanceiro}'
+                        enviado = float(linhas[4])
+                        enviado += transferencia
+                        linhas[4] = f'{enviado}'
+                    if linhas[0] == str(receptor):
+                        qtdTransferencias = int(linhas[2])
+                        qtdTransferencias += 1
+                        linhas[2] = f'{qtdTransferencias}' 
+                        volumeFinanceiro = float(linhas[3])
+                        volumeFinanceiro += transferencia
+                        linhas[3] = f'{volumeFinanceiro}'
+                        recebido = float(linhas[5])
+                        recebido += transferencia
+                        linhas[5] = f'{recebido}'
+                escrever.writerows('')
+                
+                    
+        else:
+            with open("Pessoas.csv", 'r+', newline='', encoding="utf-8") as arquivoPessoas:
+                conteudo = csv.reader(arquivoPessoas)
+                escrever = csv.writer(arquivoPessoas)
+                next(conteudo)
+                for linhas in conteudo:
+                    if linhas[0] == str(enviador):
+                        qtdTransferencias = int(linhas[2])
+                        qtdTransferencias += 1
+                        linhas[2] = f'{qtdTransferencias}' 
+                        volumeFinanceiro = float(linhas[3])
+                        volumeFinanceiro += transferencia
+                        linhas[3] = f'{volumeFinanceiro}'
+                        enviado = float(linhas[4])
+                        enviado += transferencia
+                        linhas[4] = f'{enviado}'
+                        autotransferencia = int(linhas[6])
+                        autotransferencia +=1
+                        linhas[6] = f'{autotransferencia}'
+                escrever.writerows([''])
+        with open("Transacoes.csv", 'a', newline='', encoding="utf-8") as arquivoTransacoes:
+            escrever = csv.writer(arquivoTransacoes)
+            escrever.writerow([f'{enviador}', f'{receptor}', f'{transferencia}'])
+
