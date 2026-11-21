@@ -62,39 +62,33 @@ while chave_Programa == 1:
                     id = int(input("Informe o ID a ser consultado: "))
                     if str(id) in idUsados:
                         chave_ConsultaId +=1
+                        transacoes = envio = recebido = paraSi = 0
                         with open('Transacoes.csv', 'r') as arquivoTransacoes:
                             conteudo = csv.reader(arquivoTransacoes)
                             next(conteudo)
-                            existencia = False
+                            print("Valores enviados:")
                             for linhas in conteudo:
                                 if linhas[0] == str(id):
-                                    existencia = True
-                            if existencia == True:
-                                print("Valores enviados:")
-                                for linhas in conteudo:
-                                    if linhas[0] == str(id):
-                                        print(f"O ID {id} transferiu para {linhas[1]} o valor de R${linhas[2]}")
-                            existencia = False
+                                    envio += float(linhas[2])
+                                    transacoes+=1
+                                    print(f"O ID {id} transferiu para {linhas[1]} o valor de R${linhas[2]}")
+                        with open('Transacoes.csv', 'r') as arquivoTransacoes:                   
+                            conteudo = csv.reader(arquivoTransacoes)
+                            next(conteudo)
+                            print("Valores recebidos:")
                             for linhas in conteudo:
                                 if linhas[1] == str(id):
-                                    existencia == True
-                            if existencia == True:
-                                print("Valores recebidos:")
-                                for linhas in conteudo:
-                                    if linhas[1] == str(id):
-                                        print(f"O ID {id} recebeu de {linhas[0]} o valor de R${linhas[2]}") 
-                        with open('Pessoas.csv', 'r') as arquivoPessoas:
-                            conteudo = csv.reader(arquivoPessoas)
-                            next(conteudo)
-                            for linhas in conteudo:
-                                if linhas[0] == str(id):
-                                    print(f"Dados estatísticos do ID: {id}\n"\
-                                          f"Nome cadastrado no ID {id}: {linhas[1]}\n"\
-                                          f"Participação em transferências: {linhas[2]}\n"\
-                                          f"Volume financeiro movimentado: {linhas[3]}\n"\
-                                          f"Transferências enviadas: {linhas[4]}\n"\
-                                          f"Transferências recebidas: {linhas[5]}\n"\
-                                          f"Transferências realizadas para si mesmo: {linhas[6]}")
+                                    print(f"O ID {id} recebeu de {linhas[0]} o valor de R${linhas[2]}") 
+                                    recebido += float(linhas[2])
+                                    if linhas[0] != str(id):
+                                        transacoes+=1
+                        print(f"Dados estatísticos do ID: {id}\n"\
+                                f"Nome cadastrado no ID {id}: {linhas[1]}\n"\
+                                f"Participação em transferências: {transacoes}\n"\
+                                f"Volume financeiro movimentado: {envio+recebido}\n"\
+                                f"Transferências enviadas: {envio}\n"\
+                                f"Transferências recebidas: {recebido}\n"\
+                                f"Transferências realizadas para si mesmo: {paraSi}")
                              
                     else:
                         print("ID informado não consta no sistema.")
@@ -114,56 +108,6 @@ while chave_Programa == 1:
             None
     elif opcao_menu == 3: # CASO QUEIRA TRANSFERIR
         enviador, receptor, transferencia = transacao(idUsados)
-        if enviador != receptor: # TRATAMENTO PARA SABER SE A TRANSFERENCIA FOI PARA QUEM ENVIOU
-            with open("Pessoas.csv", 'r+', newline='', encoding="utf-8") as arquivoPessoas:
-                conteudo = csv.reader(arquivoPessoas)
-                escrever = csv.writer(arquivoPessoas)
-                next(conteudo)
-                for linhas in conteudo:
-                    if linhas[0] == str(enviador):
-                        asdasd
-                        qtdTransferencias = int(linhas[2])
-                        qtdTransferencias += 1
-                        linhas[2] = f'{qtdTransferencias}' 
-                        volumeFinanceiro = float(linhas[3])
-                        volumeFinanceiro += transferencia
-                        linhas[3] = f'{volumeFinanceiro}'
-                        enviado = float(linhas[4])
-                        enviado += transferencia
-                        linhas[4] = f'{enviado}'
-                    if linhas[0] == str(receptor):
-                        qtdTransferencias = int(linhas[2])
-                        qtdTransferencias += 1
-                        linhas[2] = f'{qtdTransferencias}' 
-                        volumeFinanceiro = float(linhas[3])
-                        volumeFinanceiro += transferencia
-                        linhas[3] = f'{volumeFinanceiro}'
-                        recebido = float(linhas[5])
-                        recebido += transferencia
-                        linhas[5] = f'{recebido}'
-                escrever.writerows('')
-                
-                    
-        else:
-            with open("Pessoas.csv", 'r+', newline='', encoding="utf-8") as arquivoPessoas:
-                conteudo = csv.reader(arquivoPessoas)
-                escrever = csv.writer(arquivoPessoas)
-                next(conteudo)
-                for linhas in conteudo:
-                    if linhas[0] == str(enviador):
-                        qtdTransferencias = int(linhas[2])
-                        qtdTransferencias += 1
-                        linhas[2] = f'{qtdTransferencias}' 
-                        volumeFinanceiro = float(linhas[3])
-                        volumeFinanceiro += transferencia
-                        linhas[3] = f'{volumeFinanceiro}'
-                        enviado = float(linhas[4])
-                        enviado += transferencia
-                        linhas[4] = f'{enviado}'
-                        autotransferencia = int(linhas[6])
-                        autotransferencia +=1
-                        linhas[6] = f'{autotransferencia}'
-                escrever.writerows([''])
         with open("Transacoes.csv", 'a', newline='', encoding="utf-8") as arquivoTransacoes:
             escrever = csv.writer(arquivoTransacoes)
             escrever.writerow([f'{enviador}', f'{receptor}', f'{transferencia}'])
