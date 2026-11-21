@@ -57,6 +57,8 @@ def busca_id(id): # BUSCANDO HISTÓRICO E DADOS POR ID
                 recebido += float(linhas[2])
                 if linhas[0] != str(id):
                     transacoes+=1
+                else:
+                    paraSi += 1
     print(f"Dados estatísticos do ID: {id}\n"\
             f"Nome cadastrado no ID {id}: {linhas[1]}\n"\
             f"Participação em transferências: {transacoes}\n"\
@@ -70,7 +72,7 @@ def busca_parametro(): # BUSCA DO HISTÓRICO DE TRANSFERÊNCIA A PARTIR DE UM PA
     def parametro(): # COLETANDO PARAMETRO
         while True:
             try:
-                valor_minimo = float(input("Insira o valor mínimo como parâmetro: "))
+                valor_minimo = float(input("Insira o valor mínimo como parâmetro: R$"))
                 if valor_minimo < 0:
                     print("Valor inválido. Insira valores negativos.")
                 else:
@@ -79,12 +81,24 @@ def busca_parametro(): # BUSCA DO HISTÓRICO DE TRANSFERÊNCIA A PARTIR DE UM PA
                 print("Erro de valor. Insira apenas números.")
     
     valor = parametro()
+    contador_transacoes = 0
     with open('Transacoes.csv', 'r') as arquivoTransacoes:
         conteudo = csv.reader(arquivoTransacoes)
         next(conteudo)
         for linhas in conteudo:
             if float(linhas[2]) > valor:
-                print(f"ID {linhas[0]} transferiu para ID {linhas[1]} a quantia de R${linhas[2]}")
+                contador_transacoes+= 1
+    if contador_transacoes > 1:
+        print("\n\n\n")
+        with open('Transacoes.csv', 'r') as arquivoTransacoes:
+            conteudo = csv.reader(arquivoTransacoes)
+            next(conteudo)
+            for linhas in conteudo:
+                if float(linhas[2]) > valor:
+                    print(f"ID {linhas[0]} transferiu para ID {linhas[1]} a quantia de R${linhas[2]}")
+    else:
+        print("Não há transferências acima do limite informado.")
+        print("\n\n\n")
 
 def transacao(idsUsados): # REALIZANDO TRANSACOES
     r = 0
@@ -112,8 +126,10 @@ def transacao(idsUsados): # REALIZANDO TRANSACOES
                 print("Não é possível transferir valor negativo.")
             else:
                 r+=1
+                print("Transferência realizada.")
+                print("\n\n\n")
         except ValueError:
             print("Erro na transferencia. Valor inserido não é numerico.")
-    with open('Transacoes.csv', 'r') as arquivoTransacoes:
+    with open('Transacoes.csv', 'a', newline='') as arquivoTransacoes:
         escrever = csv.writer(arquivoTransacoes)
         escrever.writerow([f'{emissor}', f'{receptor}', f'{valor}'])
