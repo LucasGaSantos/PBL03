@@ -196,6 +196,7 @@ def busca_parametro(): # BUSCA DO HISTÓRICO DE TRANSFERÊNCIA A PARTIR DE UM PA
 
 def transacao(idsUsados): # REALIZANDO TRANSACOES
     chave_coletaID = 0
+    dadosColetados = False
     while chave_coletaID == 0:
         try: # COLETAR ID DO EMISSOR E DO RECEPTOR
             emissor = int(input("Emissor: "))
@@ -222,7 +223,7 @@ def transacao(idsUsados): # REALIZANDO TRANSACOES
                 elif valor < 0:
                     print("Não é possível transferir valor negativo.")
                 else:
-                    chave_Transacao=1
+                    chave_Transacao += 1
                     print("Transferência realizada.")
                     print("\n\n\n")
             except ValueError:
