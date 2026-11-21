@@ -27,6 +27,7 @@ except FileNotFoundError: # CAPTANDO ERRO POR NÃO EXISTIR ARQUIVO (PRIMEIRA VEZ
         escrever = csv.writer(arquivoPessoas)
         escrever.writerow(['ID', 'NOME']) # LINHA DE INFORMAÇÃO PARA CADA UMA DAS COLUNAS
 
+# TENTANDO COLETAR OS DADOS DO ARQUIVO. SE NÃO HOUVER, CRIA UM ARQUIVO DO ZERO
 try:
     with open('Transacoes.csv', 'r', newline='') as arquivoTransacoes:
         arquivoTransacoes.close()
@@ -45,54 +46,15 @@ while chave_Programa == 1:
         print("Programa Encerrado.")
 
     elif opcao_menu == 1: # CASO QUEIRA REGISTRAR UMA PESSOA
-        with open('Pessoas.csv', 'a',newline='', encoding="utf-8") as arquivoPessoas:
-            pessoa.id = len(idUsados) + 1 # GERANDO ID CONFORME A QUANTIDADE DE PESSOAS PRESENTES NO ARQUIVO
-            idUsados.append(str(pessoa.id)) 
-            pessoa.nome = input("Nome: ") # COLETANDO O NOME
-            escritor = csv.writer(arquivoPessoas)
-            escritor.writerow([f'{pessoa.id}', f'{pessoa.nome}']) # INSERINDO NO ARQUIVO
+        registro(idUsados)
         
     elif opcao_menu == 2: # CASO QUEIRA CONSULTAR O HISTÓRICO
-        resultadoBusca = menu_busca() # COLETANDO A SELEÇÃO DO MENU DE BUSCA
-        
+        resultadoBusca = menu_busca() # COLETANDO A SELEÇÃO DO MENU DE BUSCA     
         if resultadoBusca == 1: # CASO QUEIRA VER O HISTÓRICO COMPLETO
-                quantidade_linhas = 0
-                with open('Transacoes.csv', 'r') as arquivoTransacoes: # VERIFICANDO SE O ARQUIVO ESTÁ VAZIO
-                    conteudo = csv.reader(arquivoTransacoes)
-                    next(conteudo)
-                    for linhas in conteudo:
-                        quantidade_linhas+= 1
-                if quantidade_linhas > 1: # CASO O ARQUIVO NÃO ESTEJA VAZIO
-                    with open('Transacoes.csv', 'r') as arquivoTransacoes:
-                        conteudo = csv.reader(arquivoTransacoes)
-                        next(conteudo)
-                        for linhas in conteudo:
-                            print(f'ID {linhas[0]} transferiu para o ID {linhas[1]} a quantia de R${linhas[2]}')
-                else: # CASO O ARQUIVO ESTEJA VAZIO
-                    print("Não há transações registradas.")
+                busca_completa()
 
         elif resultadoBusca == 2: # CASO QUEIRA VER O HISTÓRICO DE UM USUÁRIO EM ESPECÍFICO
-            chave_ConsultaId = 1
-            with open('Transacoes.csv', 'r') as arquivoTransacoes: # CONFERINDO SE O ARQUIVO ESTÁ VAZIO 
-                conteudo = csv.reader(arquivoTransacoes)
-                quantidade_linhas = 0
-                for linha in conteudo:
-                    quantidade_linhas +=1  
-
-            if quantidade_linhas > 1: # CASO O ARQUIVO CONTENHA DADOS
-                while chave_ConsultaId == 1:
-                    try:
-                        id = int(input("Informe o ID a ser consultado: "))
-                        if str(id) in idUsados: # CASO O ID ESTEJA NO BANCO DE DADOS
-                            busca_id(id)
-                            chave_ConsultaId += 1              
-                        else: # CASO O ID NÃO ESTEJA NO BANCO DE DADOS
-                            print("ID informado não consta no sistema.")
-                            chave_ConsultaId +=1
-                    except ValueError:
-                        print("Erro de ID. ID são numéricos.")
-            else: # CASO O ARQUIVO ESTEJA VAZIO
-                print("Não há transações registradas.")
+            busca_id(idUsados)
 
         elif resultadoBusca == 3: # CASO QUEIRA VER O HISTÓRICO GERAL COM PARÂMETRO
             busca_parametro()
