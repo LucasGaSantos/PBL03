@@ -1,4 +1,5 @@
 # ESTE ARQUIVO CONTEM TODAS AS FUNÇÕES UTILIZADAS NO PROGRAMA PRINCIPAL
+import csv
 
 def menu(): # MENU INICIAL + COLETAR OPÇÃO DO USUÁRIO
     print("Bem vindo ao Sistema de Transferência da Gamecon Bahia Pocket")
@@ -35,9 +36,56 @@ def menu_busca(): # MENU DE BUSCA + COLETAR OPÇÃO DO USUÁRIO
     except ValueError:
         print("Opção inválida. Insira apenas números")
 
+def busca_id(id): # BUSCANDO HISTÓRICO E DADOS POR ID
+    transacoes = envio = recebido = paraSi = 0
+    with open('Transacoes.csv', 'r') as arquivoTransacoes:
+        conteudo = csv.reader(arquivoTransacoes)
+        next(conteudo)
+        print("Valores enviados:")
+        for linhas in conteudo:
+            if linhas[0] == str(id):
+                envio += float(linhas[2])
+                transacoes+=1
+                print(f"O ID {id} transferiu para {linhas[1]} o valor de R${linhas[2]}")
+    with open('Transacoes.csv', 'r') as arquivoTransacoes:                   
+        conteudo = csv.reader(arquivoTransacoes)
+        next(conteudo)
+        print("Valores recebidos:")
+        for linhas in conteudo:
+            if linhas[1] == str(id):
+                print(f"O ID {id} recebeu de {linhas[0]} o valor de R${linhas[2]}") 
+                recebido += float(linhas[2])
+                if linhas[0] != str(id):
+                    transacoes+=1
+    print(f"Dados estatísticos do ID: {id}\n"\
+            f"Nome cadastrado no ID {id}: {linhas[1]}\n"\
+            f"Participação em transferências: {transacoes}\n"\
+            f"Volume financeiro movimentado: {envio+recebido}\n"\
+            f"Transferências enviadas: {envio}\n"\
+            f"Transferências recebidas: {recebido}\n"\
+            f"Transferências realizadas para si mesmo: {paraSi}") 
 
+def busca_parametro(): # BUSCA DO HISTÓRICO DE TRANSFERÊNCIA A PARTIR DE UM PARAMETRO
+    
+    def parametro(): # COLETANDO PARAMETRO
+        while True:
+            try:
+                valor_minimo = float("Insira o valor mínimo como parâmetro: ")
+                if valor_minimo < 0:
+                    print("Valor inválido. Insira valores negativos.")
+                else:
+                    return valor_minimo
+            except ValueError:
+                print("Erro de valor. Insira apenas números.")
+    
+    valor = parametro()
+    with open('Transacoes.csv', 'r') as arquivoTransacoes:
+        conteudo = csv.reader(arquivoTransacoes)
+        for linhas in conteudo:
+            if linhas[2] > valor:
+                print(f"ID {linhas[0]} transferiu para ID {linhas[1]} a quantia de R${linhas[2]}")
 
-def transacao(idsUsados):
+def transacao(idsUsados): # REALIZANDO TRANSACOES
     r = 0
     while r == 0:
         try:
@@ -63,6 +111,8 @@ def transacao(idsUsados):
                 print("Não é possível transferir valor negativo.")
             else:
                 r+=1
-                return emissor, receptor, valor
         except ValueError:
             print("Erro na transferencia. Valor inserido não é numerico.")
+    with open('Transacoes.csv', 'r') as arquivoTransacoes:
+        escrever = csv.writer(arquivoTransacoes)
+        escrever.writerow([f'{emissor}', f'{receptor}', f'{valor}'])

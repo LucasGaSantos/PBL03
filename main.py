@@ -27,17 +27,17 @@ except FileNotFoundError: # CAPTANDO ERRO POR NÃO EXISTIR ARQUIVO (PRIMEIRA VEZ
         escrever = csv.writer(arquivoPessoas)
         escrever.writerow(['ID', 'NOME', 'QUANTIDADE DE TRANSFERENCIAS', 'VOLUME FINANCEIRO', 'QUANTIA ENVIADA', 'QUANTIA RECEBIDA', 'MOVIMENTAÇÃO PARA SI']) # LINHA DE INFORMAÇÃO PARA CADA UMA DAS COLUNAS
 try:
-    with open('Transacoes.csv', 'r', newline='', encoding="utf-8") as arquivoTransacoes:
+    with open('Transacoes.csv', 'r', newline='') as arquivoTransacoes:
         arquivoTransacoes.close()
 except FileNotFoundError:
-    with open('Transacoes.csv', 'a', newline='', encoding="utf-8") as arquivoTransacoes:
+    with open('Transacoes.csv', 'a', newline='') as arquivoTransacoes:
         escrever = csv.writer(arquivoTransacoes)
         escrever.writerow(['QUEM TRANSFERIU', 'QUEM RECEBEU', 'VALOR DA TRANSFERENCIA'])
 # INICIANDO O PROGRAMA
 chave_Programa = 1
 while chave_Programa == 1:
     opcao_menu = menu() # COLETANDO A SELEÇÃO DO MENU
-    if opcao_menu == 0:
+    if opcao_menu == 0: # CASO QUEIRA ENCERRAR O PROGRAMA
         chave_Programa -= 1
         print("Programa Encerrado.")
     elif opcao_menu == 1: # CASO QUEIRA REGISTRAR UMA PESSOA
@@ -52,63 +52,35 @@ while chave_Programa == 1:
         if resultadoBusca == 1: # CASO QUEIRA VER O HISTÓRICO COMPLETO
             try:
                 with open('Transacoes.csv', 'r') as arquivoTransacoes:
-                    print(arquivoTransacoes.read())
+                    conteudo = csv.reader(arquivoTransacoes)
+                    next(conteudo)
+                    for linhas in conteudo:
+                        print(f'ID {linhas[0]} transferiu para o ID {linhas[1]} a quantia de R${linhas[2]}')
             except FileNotFoundError: # TRATANDO CASO NÃO ENCONTRE REGISTRO DE TRANSAÇÕES
                 print("Não há transações registradas.")
         elif resultadoBusca == 2: # CASO QUEIRA VER O HISTÓRICO DE UM USUÁRIO EM ESPECÍFICO
             chave_ConsultaId = 1
-            while chave_ConsultaId == 1:
-                try:
-                    id = int(input("Informe o ID a ser consultado: "))
-                    if str(id) in idUsados:
-                        chave_ConsultaId +=1
-                        transacoes = envio = recebido = paraSi = 0
-                        with open('Transacoes.csv', 'r') as arquivoTransacoes:
-                            conteudo = csv.reader(arquivoTransacoes)
-                            next(conteudo)
-                            print("Valores enviados:")
-                            for linhas in conteudo:
-                                if linhas[0] == str(id):
-                                    envio += float(linhas[2])
-                                    transacoes+=1
-                                    print(f"O ID {id} transferiu para {linhas[1]} o valor de R${linhas[2]}")
-                        with open('Transacoes.csv', 'r') as arquivoTransacoes:                   
-                            conteudo = csv.reader(arquivoTransacoes)
-                            next(conteudo)
-                            print("Valores recebidos:")
-                            for linhas in conteudo:
-                                if linhas[1] == str(id):
-                                    print(f"O ID {id} recebeu de {linhas[0]} o valor de R${linhas[2]}") 
-                                    recebido += float(linhas[2])
-                                    if linhas[0] != str(id):
-                                        transacoes+=1
-                        print(f"Dados estatísticos do ID: {id}\n"\
-                                f"Nome cadastrado no ID {id}: {linhas[1]}\n"\
-                                f"Participação em transferências: {transacoes}\n"\
-                                f"Volume financeiro movimentado: {envio+recebido}\n"\
-                                f"Transferências enviadas: {envio}\n"\
-                                f"Transferências recebidas: {recebido}\n"\
-                                f"Transferências realizadas para si mesmo: {paraSi}")
-                             
-                    else:
-                        print("ID informado não consta no sistema.")
-                        chave_ConsultaId +=1
-                except ValueError:
-                    print("Erro de ID. ID são numéricos.")
-            try:
-                with open('Transacoes.csv', 'r') as arquivoTransacoes: 
-                    for i in arquivoTransacoes.readlines():
-                        if i in arquivoTransacoes.readlines():
-                            print(i)
-            except FileNotFoundError:
-                with open('Transacoes.csv', 'w') as arquivoTransacoes:
-                    arquivoTransacoes.close()
+            with open('Transacoes.csv', 'r') as arquivoTransacoes: # CONFERINDO SE O ARQUIVO ESTÁ VAZIO 
+                conteudo = csv.reader(arquivoTransacoes)
+                quantidade_linhas = 0
+                for linha in conteudo:
+                    quantidade_linhas +=1                
+            if quantidade_linhas > 1: # CASO O ARQUIVO CONTENHA DADOS
+                while chave_ConsultaId == 1:
+                    try:
+                        id = int(input("Informe o ID a ser consultado: "))
+                        if str(id) in idUsados:
+                            busca_id(id)
+                            chave_ConsultaId += 1              
+                        else:
+                            print("ID informado não consta no sistema.")
+                            chave_ConsultaId +=1
+                    except ValueError:
+                        print("Erro de ID. ID são numéricos.")
+            else: # CASO O ARQUIVO ESTEJA VAZIO
                 print("Não há transações registradas.")
         else: # CASO QUEIRA VER O HISTÓRICO GERAL COM PARÂMETRO
-            None
+            busca_parametro()
     elif opcao_menu == 3: # CASO QUEIRA TRANSFERIR
-        enviador, receptor, transferencia = transacao(idUsados)
-        with open("Transacoes.csv", 'a', newline='', encoding="utf-8") as arquivoTransacoes:
-            escrever = csv.writer(arquivoTransacoes)
-            escrever.writerow([f'{enviador}', f'{receptor}', f'{transferencia}'])
-
+        transacao(idUsados)
+        
