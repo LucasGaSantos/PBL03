@@ -4,11 +4,19 @@ from classes import *
 
 def registro(lista): # REGISTRO DOS USUÁRIOS
     with open('Pessoas.csv', 'a',newline='', encoding="utf-8") as arquivoPessoas:
-        pessoa.id = len(lista) + 1 # GERANDO ID CONFORME A QUANTIDADE DE PESSOAS PRESENTES NO ARQUIVO
-        lista.append(str(pessoa.id)) 
-        pessoa.nome = input("Nome: ") # COLETANDO O NOME
+        usuario = pessoa() # CRIANDO OBJETO DA CLASSE PESSOA
+        usuario.id = len(lista) + 1 # GERANDO ID CONFORME A QUANTIDADE DE PESSOAS PRESENTES NO ARQUIVO
+        lista.append(str(usuario.id)) 
+        def coletarNome():
+            while True:
+                nome = input("Nome: ") # COLETANDO O NOME
+                if nome == '':
+                    print("Não é tolerado espaço vazio como nome.")
+                else:
+                    return nome
+        usuario.nome = coletarNome()
         escritor = csv.writer(arquivoPessoas)
-        escritor.writerow([f'{pessoa.id}', f'{pessoa.nome}']) # INSERINDO NO ARQUIVO
+        escritor.writerow([f'{usuario.id}', f'{usuario.nome}']) # INSERINDO NO ARQUIVO
 
 def menu(): # MENU INICIAL + COLETAR OPÇÃO DO USUÁRIO
     print("\n\n\n\n\nBem vindo ao Sistema de Transferência da Gamecon Bahia Pocket")
@@ -91,47 +99,65 @@ def busca_id(lista): # BUSCANDO HISTÓRICO E DADOS POR ID
             None
         else: # CASO O ID PESQUISADO CONSTE, O CÓDIGO RODARÁ
             transacoes = qtdEnvio = envio = qtdRecebido = recebido = paraSi = envioParaSi = 0
-            with open('Transacoes.csv', 'r') as arquivoTransacoes: # ABRE O ARQUIVO TRANSFERENCIA PARA COLETAR DADOS DE ENVIO
+            with open('Transacoes.csv', 'r') as arquivoTransacoes: # ABRE O ARQUIVO TRANSFERENCIA PARA DESCOBRIR SE O USUÁRIO TEM DADOS CADASTRADOS
+                usuarioEnviou = False
                 conteudo = csv.reader(arquivoTransacoes)
                 next(conteudo)
-                print("Valores enviados:")
                 for linhas in conteudo:
                     if linhas[0] == str(idPesquisa):
-                        envio += float(linhas[2])
-                        transacoes+=1
-                        qtdEnvio+=1
-                        print(f"O ID {idPesquisa} transferiu para {linhas[1]} o valor de R${linhas[2]}")
-            with open('Transacoes.csv', 'r') as arquivoTransacoes: # ABRE O ARQUIVO TRANSFERENCIA PARA COLETAR DADOS DE RECEBIMENTO                    
+                        usuarioEnviou = True    
+            with open('Transacoes.csv', 'r') as arquivoTransacoes: # ABRE O ARQUIVO TRANSFERENCIA PARA DESCOBRIR SE O USUÁRIO TEM DADOS CADASTRADOS
+                usuarioRecebeu = False
                 conteudo = csv.reader(arquivoTransacoes)
                 next(conteudo)
-                print("Valores recebidos:")
                 for linhas in conteudo:
-                    if linhas[1] == str(idPesquisa):
-                        print(f"O ID {idPesquisa} recebeu de {linhas[0]} o valor de R${linhas[2]}") 
-                        recebido += float(linhas[2])
-                        if linhas[0] != str(idPesquisa):
+                    if linhas[0] == str(idPesquisa):
+                        usuarioRecebeu = True
+            if usuarioRecebeu == True or usuarioEnviou == True:
+
+                with open('Transacoes.csv', 'r') as arquivoTransacoes: # ABRE O ARQUIVO TRANSFERENCIA PARA COLETAR DADOS DE ENVIO
+                    conteudo = csv.reader(arquivoTransacoes)
+                    next(conteudo)
+                    print("\nValores enviados:")
+                    for linhas in conteudo:
+                        if linhas[0] == str(idPesquisa):
+                            envio += float(linhas[2])
                             transacoes+=1
-                            qtdRecebido+=1
-                        else:
-                            paraSi += 1
-                            envioParaSi += float(linhas[2])
-            with open('Pessoas.csv', 'r') as arquivoPessoas: # ABRE O ARQUIVO DE PESSOAS PARA COLETAR O NOME 
-                conteudo = csv.reader(arquivoPessoas)
-                next(conteudo)
-                for linhas in conteudo:
-                    if linhas[0] == str(idPesquisa):
-                        nome_ID = linhas[1]
-            # IMPRESSÃO DAS ESTATÍSTICAS COLETADAS
-            print(f"Dados estatísticos do ID: {idPesquisa}\n"\
-                    f"Nome cadastrado no ID {idPesquisa}: {nome_ID}\n"\
-                    f"Participação em transferências: {transacoes}\n"\
-                    f"Volume financeiro movimentado: {envio+recebido}\n"\
-                    f"Transferências enviadas: {qtdEnvio}\n"\
-                    f"Valor total das transferências enviadas: {envio}\n"\
-                    f"Transferências recebidas: {qtdRecebido}\n"\
-                    f"Valor total das transferências recebidas: {recebido}\n"\
-                    f"Transferências para si: {paraSi}\n"\
-                    f"Valor total transferido para si: {envioParaSi}")
+                            qtdEnvio+=1
+                            print(f"O ID {idPesquisa} transferiu para {linhas[1]} o valor de R$ {linhas[2]}")
+                with open('Transacoes.csv', 'r', encoding="utf-8") as arquivoTransacoes: # ABRE O ARQUIVO TRANSFERENCIA PARA COLETAR DADOS DE RECEBIMENTO                    
+                    conteudo = csv.reader(arquivoTransacoes)
+                    next(conteudo)
+                    print("\nValores recebidos:")
+                    for linhas in conteudo:
+                        if linhas[1] == str(idPesquisa):
+                            print(f"O ID {idPesquisa} recebeu de {linhas[0]} o valor de R$ {linhas[2]}") 
+                            recebido += float(linhas[2])
+                            if linhas[0] != str(idPesquisa):
+                                transacoes+=1
+                                qtdRecebido+=1
+                            else:
+                                paraSi += 1
+                                envioParaSi += float(linhas[2])
+                with open('Pessoas.csv', 'r') as arquivoPessoas: # ABRE O ARQUIVO DE PESSOAS PARA COLETAR O NOME 
+                    conteudo = csv.reader(arquivoPessoas)
+                    next(conteudo)
+                    for linhas in conteudo:
+                        if linhas[0] == str(idPesquisa):
+                            nome_ID = linhas[1]
+                # IMPRESSÃO DAS ESTATÍSTICAS COLETADAS
+                print(f"\nDados estatísticos do ID: {idPesquisa}\n"\
+                        f"Nome cadastrado no ID {idPesquisa}: {nome_ID}\n"\
+                        f"Participação em transferências: {transacoes}\n"\
+                        f"Volume financeiro movimentado: R$ {envio+recebido}\n"\
+                        f"Transferências enviadas: {qtdEnvio}\n"\
+                        f"Valor total das transferências enviadas: R$ {envio}\n"\
+                        f"Transferências recebidas de outro ID: {qtdRecebido}\n"\
+                        f"Valor total das transferências recebidas: R$ {recebido}\n"\
+                        f"Transferências para si: {paraSi}\n"\
+                        f"Valor total transferido para si: R$ {envioParaSi}")
+            else:
+                print(f"O usuário com ID {idPesquisa} não participou de transferências até o momento.")
 
 def busca_parametro(): # BUSCA DO HISTÓRICO DE TRANSFERÊNCIA A PARTIR DE UM PARAMETRO
     idsListados = []
@@ -159,13 +185,13 @@ def busca_parametro(): # BUSCA DO HISTÓRICO DE TRANSFERÊNCIA A PARTIR DE UM PA
     if len(idsListados) > 0: # SE HOUVER TRANSAÇÕES
         idsListadosOrdenados = ordenacao(idsListados) # ORDENANDO A LISTA DE IDS QUE PARTICIPARAM DE TRANSAÇÕES
         idsDentroLimite = []
-        for i in range(len(idsListadosOrdenados) - 1): # ENCONTRANDO OS IDS DENTRO DO LIMITE
+        for i in range(0, len(idsListadosOrdenados)): # ENCONTRANDO OS IDS DENTRO DO LIMITE
             try:
                 if idsListadosOrdenados.count(idsListadosOrdenados[i]) >= valor:
                     idsDentroLimite.append(idsListadosOrdenados[i])
-                    for i in range(0, len(idsDentroLimite)-1):
-                        if idsDentroLimite[i] == idsDentroLimite[i+1]:
-                            idsDentroLimite.pop(i)
+                    for j in range(0, len(idsDentroLimite)-1):
+                        if idsDentroLimite[j] == idsDentroLimite[j+1]:
+                            idsDentroLimite.pop(j)
             except IndexError:
                 None
         maiores = []
@@ -187,22 +213,23 @@ def busca_parametro(): # BUSCA DO HISTÓRICO DE TRANSFERÊNCIA A PARTIR DE UM PA
             for i in maiores:
                 print(f"ID: {i}")
         # IMPRESSÃO DOS DADOS ESTATÍSTICOS DE QUEM ESTÁ DENTRO DO PARÂMETRO ESTABELECIDO
-        for i in range(0, len(idsDentroLimite) -1):
-            print(f"O ID {idsDentroLimite[i]} participou de {idsListadosOrdenados.count(idsDentroLimite[i])}")
+        for i in idsDentroLimite:
+            print(f"O ID {i} participou de {idsListadosOrdenados.count(i)}")
                 
     else: # SE NÃO HOUVER TRANSAÇÕES
         print("Não há transferências.")
         print("\n\n\n")
 
-def transacao(idsUsados): # REALIZANDO TRANSACOES
+def transferencia(idsUsados): # REALIZANDO TRANSACOES
     chave_coletaID = 0
     dadosColetados = False
+    objetoTransacao = transacao() # CRIANDO OBJETO DA CLASSE TRANSACAO
     while chave_coletaID == 0:
         try: # COLETAR ID DO EMISSOR E DO RECEPTOR
-            emissor = int(input("Emissor: "))
-            if str(emissor) in idsUsados:
-                receptor = int(input("Receptor: "))
-                if str(receptor) in idsUsados:
+            objetoTransacao.transferente = int(input("Emissor: "))
+            if str(objetoTransacao.transferente) in idsUsados:
+                objetoTransacao.receptor = int(input("Receptor: "))
+                if str(objetoTransacao.receptor) in idsUsados:
                     chave_coletaID += 1
                     dadosColetados = True
                 else:
@@ -217,10 +244,10 @@ def transacao(idsUsados): # REALIZANDO TRANSACOES
         chave_Transacao = 0
         while chave_Transacao == 0:
             try: 
-                valor = float(input("Informe o valor da transferência: "))
-                if valor == 0:
+                objetoTransacao.transferencia = float(input("Informe o valor da transferência: "))
+                if objetoTransacao.transferencia == 0:
                     print("Valor inválido. Zero não é transferível.")
-                elif valor < 0:
+                elif objetoTransacao.transferencia < 0:
                     print("Não é possível transferir valor negativo.")
                 else:
                     chave_Transacao += 1
@@ -230,7 +257,7 @@ def transacao(idsUsados): # REALIZANDO TRANSACOES
                 print("Erro na transferencia. Valor inserido não é numerico.")
         with open('Transacoes.csv', 'a', newline='') as arquivoTransacoes:
             escrever = csv.writer(arquivoTransacoes)
-            escrever.writerow([f'{emissor}', f'{receptor}', f'{valor}'])
+            escrever.writerow([f'{objetoTransacao.transferente}', f'{objetoTransacao.receptor}', f'{objetoTransacao.transferencia}'])
 
 def ordenacao(lista):
     lista2 = []

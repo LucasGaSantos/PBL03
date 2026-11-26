@@ -60,4 +60,4 @@ while chave_Programa == 1:
             busca_parametro()
 
     elif opcao_menu == 3: # CASO QUEIRA TRANSFERIR
-        transacao(idUsados)
+        transferencia(idUsados)
