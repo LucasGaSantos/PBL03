@@ -72,7 +72,13 @@ def busca_completa(): # BUSCA COMPLETA DO HISTÓRICO DE TRANSFERÊNCIA
 
 
 def busca_id(lista): # BUSCANDO HISTÓRICO E DADOS POR ID
-
+    def mostrar_ids():
+        with open('Pessoas.csv', 'r', encoding="utf-8") as arquivoPessoas:
+            conteudo = csv.reader(arquivoPessoas)
+            next(conteudo)
+            print("Pessoas cadastradas:")
+            for linha in conteudo:
+                print(f"ID: {linha[0]} | Nome: {linha[1]}")
     def coletar_id(lista): # COLETANDO ID DO USUÁRIO
         chave_ConsultaId = 1
         while chave_ConsultaId == 1:
@@ -94,6 +100,7 @@ def busca_id(lista): # BUSCANDO HISTÓRICO E DADOS POR ID
         for linha in conteudo:
             quantidade_linhas +=1  
     if quantidade_linhas > 1: # CASO O ARQUIVO CONTENHA DADOS
+        mostrar_ids()
         idPesquisa = coletar_id(lista)
         if idPesquisa == False: # CASO O ID PESQUISADO NÃO CONSTE, O CÓDIGO NÃO RODARÁ
             None
@@ -158,6 +165,8 @@ def busca_id(lista): # BUSCANDO HISTÓRICO E DADOS POR ID
                         f"Valor total transferido para si: R$ {envioParaSi}")
             else:
                 print(f"O usuário com ID {idPesquisa} não participou de transferências até o momento.")
+    else:
+        print("Não foi encontrado nenhum usuário com transações registradas no programa.")
 
 def busca_parametro(): # BUSCA DO HISTÓRICO DE TRANSFERÊNCIA A PARTIR DE UM PARAMETRO
     idsListados = []
@@ -173,7 +182,7 @@ def busca_parametro(): # BUSCA DO HISTÓRICO DE TRANSFERÊNCIA A PARTIR DE UM PA
                 print("Erro de valor. Insira apenas números.")
     
     valor = parametro() # TRAZENDO O RETORNO DO PARAMETRO PARA FUNÇÃO PRINCIPAL
-    with open('Transacoes.csv', 'r') as arquivoTransacoes: # PERCORRENDO O BANCO DE DADOS E ADICIONANDO TODAS AS TRANSAÇÕES
+    with open('Transacoes.csv', 'r') as arquivoTransacoes: # PERCORRENDO O BANCO DE DADOS E COLETANDO TODAS AS TRANSAÇÕES
         conteudo = csv.reader(arquivoTransacoes)
         next(conteudo)
         for linhas in conteudo:
@@ -226,9 +235,9 @@ def transferencia(idsUsados): # REALIZANDO TRANSACOES
     objetoTransacao = transacao() # CRIANDO OBJETO DA CLASSE TRANSACAO
     while chave_coletaID == 0:
         try: # COLETAR ID DO EMISSOR E DO RECEPTOR
-            objetoTransacao.transferente = int(input("Emissor: "))
+            objetoTransacao.transferente = int(input("ID do emissor: "))
             if str(objetoTransacao.transferente) in idsUsados:
-                objetoTransacao.receptor = int(input("Receptor: "))
+                objetoTransacao.receptor = int(input("ID do receptor: "))
                 if str(objetoTransacao.receptor) in idsUsados:
                     chave_coletaID += 1
                     dadosColetados = True
@@ -244,7 +253,7 @@ def transferencia(idsUsados): # REALIZANDO TRANSACOES
         chave_Transacao = 0
         while chave_Transacao == 0:
             try: 
-                objetoTransacao.transferencia = float(input("Informe o valor da transferência: "))
+                objetoTransacao.transferencia = float(input("Informe o valor da transferência: R$ "))
                 if objetoTransacao.transferencia == 0:
                     print("Valor inválido. Zero não é transferível.")
                 elif objetoTransacao.transferencia < 0:
